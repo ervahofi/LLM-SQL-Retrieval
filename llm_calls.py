@@ -11,8 +11,7 @@ def generate_sql_query(dB_context: str, retrieved_descriptions: str, user_questi
                 "content":
                        f"""
                 You are a SQLite expert.
-                The database contains multiple tables, each corresponding to a different aspect of building cost. 
-                Each table row represents an individual instance of a building element of that type.
+                The database contains a table, Each table row represents an individual instance of a panel feature.
 
                 # Context Information #
                 ## Database Schema: ## {dB_context}
@@ -50,12 +49,11 @@ def build_answer(sql_query: str, sql_result: str, user_question: str) -> str:
                 "content":
                        f"""
                         You have to answer a user question according to the SQL query and its result. Your goal is to answer in a concise and informative way, specifying the properties and tables that were relevant to create the answer.
-                       
-                        ### EXAMPLE ###
-                        User Question: What is the area of the largest slab?  
-                        SQL Query: SELECT GlobalId, Dimensions_Area FROM IfcSlab ORDER BY Dimensions_Area DESC LIMIT 1;  
+                       ### EXAMPLE ###
+                        User Question: How many panels oriented to North?  
+                        SQL Query: SELECT COUNT(*) FROM FacadeElements WHERE Orientation = 'North';  
                         SQL Result: [('3qq_RRlZrFqhCIHFKokT7x', 207.1385920365226)]  
-                        Answer: I looked at the Dimensions_Area property of IfcSlab elements and found that the area of the largest slab (GlobalID: '3qq_RRlZrFqhCIHFKokT7x') is 207.13 m².
+                        Answer: I looked at the Orientation property of FacadeElements and found that there are 52 of panels oriented to North.
                 """,
             },
             {
@@ -92,11 +90,11 @@ def fix_sql_query(dB_context: str, user_question: str, atempted_queries: str, ex
                 or unexpected. Your role is to analyze the error based on the provided database schema and the details of
                 the failed execution, and then provide a corrected version of the SQL query.
                 The new query should provide an answer to the question! Dont create queries that do not relate to the question!
-                Pay special atenttion to the names of the tables and properties. Your query must use keywords that match perfectly.
+                Pay special atenttion to the names of the table and properties. Your query must use keywords that match perfectly.
 
                 # Context Information #
-                - The database contains multiple tables, each corresponding to a different building element type. 
-                - Each table row represents an individual instance of a building element of that type.
+                - The database contains one table, each corresponding to a different panel feature. 
+                - Each table row represents an individual instance of a panel feature of that type.
                 ## Database Schema: ## {dB_context}
 
                 # Instructions #

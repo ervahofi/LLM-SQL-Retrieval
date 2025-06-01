@@ -4,29 +4,34 @@ from sql_calls import *
 from utils.rag_utils import sql_rag_call
 
 # --- User Input ---
-user_question = "What is the hourly rate of the paintor?"
+user_question = "How many facade panels oriented to south?"
 
 # --- Load SQL Database ---
-db_path = "sql/cost-database.db"
+db_path = "sql/building_panels.db"
 db_schema = get_dB_schema(db_path)
 
 # --- Retrieve most relevant table ---
-table_descriptions_path = "knowledge/table_descriptions.json" # we use this to help the llm understand which tables are important
-relevant_table, table_description = sql_rag_call(
-    user_question, table_descriptions_path, n_results=1
-)
+# table_descriptions_path = "knowledge/table_descriptions.json" # we use this to help the llm understand which tables are important
+# relevant_table, table_description = sql_rag_call(
+#     user_question, table_descriptions_path, n_results=1
+# )
 
-if relevant_table:
-    print(f"Most relevant table: {relevant_table}")
-else:
-    print("No relevant table found.")
-    exit()
+# if relevant_table:
+#     print(f"Most relevant table: {relevant_table}")
+# else:
+#     print("No relevant table found.")
+#     exit()
 
 # --- Filter Schema to relevant table ---
-filtered_schema = {relevant_table: db_schema.get(relevant_table)}
-db_context = format_dB_context(db_path, filtered_schema)
 
+db_context = f"""unit_id	panel_id	room	orientation	is_exterior
+187	3B_DOOR0	living room	Unknown	FALSE
+187	3B_FLOOR1	living room	Unknown	FALSE
+187	3B_ROOF2	living room	Unknown	FALSE
+187	3B_WALL10	bathroom	North	TRUE
+"""
 # --- Generate SQL query from LLM ---
+table_description = "This table contains information about panels of the units. Each row records a unique unit ID, their panel ID, the room function, orientation of each panel, and if it's exterior or not."
 sql_query = generate_sql_query(db_context, table_description, user_question)
 print(f"SQL Query: \n {sql_query}")
 
